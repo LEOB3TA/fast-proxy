@@ -2,10 +2,11 @@
 
 if [ $# -eq 0 ]
 then 
-	echo "usage: macproxy [-h] [-n <network-services>] [-P <source-port>] [-p <ssh-port>] [-ws] <user@ssh.proxy> <server_port>" ; exit 0;
+	echo "usage: macproxy [-h] [-n <network-services>] [-P <source-port>] [-p <ssh-port>] [-w] [-s] <user@ssh.proxy>" ; exit 0;
 fi
 
 trap handler INT #hand the exit of the program
+trap handler KILL #hand the exit of the program
 
 function handler(){
 	echo "i'm quitting"
@@ -22,7 +23,7 @@ ssh_port=22
 while getopts "hwsP:p:" flag
 do
 	case "$flag" in
-		h) echo "usage: macproxy [-h] [-n <network-services>] [-P <source-port>] [-p <ssh-port>] [-ws] <user@ssh.proxy> <server_port>" ; exit 0;;
+		h) echo "usage: macproxy [-h] [-n <network-services>] [-P <source-port>] [-p <ssh-port>] [-w] [-s] <user@ssh.proxy>" ; exit 0;;
 		w) networksetup -setsecurewebproxy $network_service localhost $source_port
 			networksetup -setwebproxy $network_service localhost $source_port
 			networksetup -setwebproxystate $network_service on

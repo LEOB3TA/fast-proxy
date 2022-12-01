@@ -1,0 +1,50 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]
+then 
+	echo "usage: macproxy [-h] [-n <network-services>] [-P <source-port>] [-p <ssh-port>] [-ws] <user@ssh.proxy> <server_port>" ; exit 0;
+fi
+
+trap handler INT #hand the exit of the program
+
+function handler(){
+	echo "i'm quitting"
+	networksetup -setwebproxystate $network_service off
+	networksetup -setsecurewebproxystate $network_service off
+	networksetup -setsocksfirewallproxystate $network_service off
+	networksetup -setproxybypassdomains $network_service ""
+	exit 0
+}
+
+network_service="wi-fi"
+source_port=9090
+ssh_port=22
+while getopts "hwsP:p:" flag
+do
+	case "$flag" in
+		h) echo "usage: macproxy [-h] [-n <network-services>] [-P <source-port>] [-p <ssh-port>] [-ws] <user@ssh.proxy> <server_port>" ; exit 0;;
+		w) networksetup -setsecurewebproxy $network_service localhost $source_port
+			networksetup -setwebproxy $network_service localhost $source_port
+			networksetup -setwebproxystate $network_service on
+			networksetup -setsecurewebproxystate $network_service on ;;
+		s) networksetup -setsocksfirewallproxy $network_service localhost $source_port
+			networksetup -setsocksfirewallproxystate $network_service on;;
+
+		P) source_port=${OPTARG};;
+		p) ssh_port=${$OPTARG};;
+		n) network_service=${$OPTARG};;
+
+	esac
+done
+networksetup -setproxybypassdomains $network_service "*.local 169.254/16 localhost"
+
+
+ssh_string=${@:(-1)}
+
+echo "i'm opening the connection to $ssh_string:$ssh_port and the local port is $source_port"
+echo "hit <Ctrl + C> to quit"
+
+ssh -p $ssh_port -N -D $source_port $ssh_string
+
+
+

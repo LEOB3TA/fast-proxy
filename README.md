@@ -46,7 +46,7 @@ usage: macproxy [-h] [-n <network-services>] [-P <source-port>] [-p <ssh-port>] 
  
  ## TODO
  
- Add compatibility with other OS and browser
+ Add compatibility with other OS and browser; make this script runnable in background
  
  # License
  
